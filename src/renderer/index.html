@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EncryptHu</title>
+    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../node_modules/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="row">
+        <!-- 左侧 -->
+        <div class="col-md-5">
+            <!-- 文件上传按钮 -->
+            <div class="mb-3">
+                <label for="fileUpload" class="form-label">上传文件</label>
+                <input type="file" class="form-control" id="fileUpload">
+            </div>
+
+            <!-- 文本框 -->
+            <div>
+                <label for="inputText" class="form-label">输入待加密的文本</label>
+                <textarea id="inputText" class="form-control" rows="4" placeholder="在此处输入文本..."></textarea>
+            </div>
+        </div>
+
+        <!-- 中间箭头 -->
+        <div class="col-md-2 d-flex justify-content-center align-items-center">
+            <button id="encryptBtn" class="btn btn-link">
+                <i class="bi bi-arrow-right" style="font-size: 2em;"></i>
+            </button>
+        </div>
+
+
+        <!-- 右侧 -->
+        <div class="col-md-5 d-flex flex-column justify-content-center align-items-center">
+            <!-- 已加密文件的格子 -->
+            <div class="border p-5 w-100 d-flex flex-column justify-content-center align-items-center">
+                <p>加密后的文件将显示在这里</p>
+                <!-- 这里可以添加一个下载按钮或其他提示 -->
+                <button class="btn btn-primary mt-3">下载文件</button>
+            </div>
+            <!-- 新增的区域 -->
+            <div class="mt-4">
+                <label for="encryptedTextOutput" class="form-label">加密后的文本</label>
+                <textarea id="encryptedTextOutput" class="form-control" rows="4" placeholder="加密后的文本将显示在此处..." readonly></textarea>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="./renderer.js"></script>
+</body>
+</html>

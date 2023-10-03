@@ -1,0 +1,5 @@
+body {
+    /* fade from #49eaff to #736EFE */
+    background-image: linear-gradient( 135deg, #49eaff 10%, #736EFE 100%);
+    min-height: 100vh;
+}
