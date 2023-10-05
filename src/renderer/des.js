@@ -43,6 +43,7 @@ function iterate_16(plaintext, keys, encrypt = true) {
     }
 
     for (let i = 0; i < 16; i++) {
+        console.log(i, R, keys[i])
         let newR = xor(L, f(R, keys[i]));
         L = R;
         R = newR;
@@ -137,6 +138,7 @@ function desEncryptBlock(plaintext, subkeys) {
 function desEncrypt(plaintextHex, keyHex) {
     // Convert hex to binary
     const plaintext = hexToBinary(plaintextHex);
+    console.log(plaintext)
     const key = hexToBinary(keyHex).split('').map(bit => parseInt(bit, 10));  // Convert string bits to numbers
     let subkeys = generateSubkeys(key);
 
