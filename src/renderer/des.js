@@ -223,7 +223,7 @@ function pkcs7Unpad(data) {
 
 
 // TODO: remove
-console.log(desEncrypt('0123456789ABCDEF', '133457799BBCDFF1'));
+console.log(desEncrypt('0BC587C8AD960AD2', '0BC587C8AD960AD2'));
 // it should be 85E813540F0AB405
 
 

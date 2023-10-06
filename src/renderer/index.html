@@ -11,22 +11,16 @@
 </head>
 
 <body>
-<div class="container mt-5">
+<div class="container mt-4">
     <h2 class="text-center mb-4">EncryptHu</h2>
 
     <!-- 加密/解密选择器 -->
     <div class="d-flex justify-content-center mb-4">
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="actionChoice" id="encryptChoice" value="encrypt" checked>
-            <label class="form-check-label" for="encryptChoice">加密</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="actionChoice" id="decryptChoice" value="decrypt">
-            <label class="form-check-label" for="decryptChoice">解密</label>
-        </div>
+        <input type="checkbox" class="btn-check" id="actionSwitch" autocomplete="off">
+        <label class="btn btn-outline-primary" for="actionSwitch" id="actionLabel" style="width: fit-content"></label>
     </div>
 
-    <div class="row mb-5">
+    <div class="row mb-3">
         <!-- 输入部分 - 左侧卡片 -->
         <div class="col-md-5" id="inputArea">
 
@@ -91,8 +85,8 @@
         </div>
 
         <!-- 输出部分 - 右侧卡片 -->
-        <div class="col-md-5">
-            <div class="card" id="outputCard">
+        <div class="col-md-5 align-items-center">
+            <div class="card mx-auto" id="outputCard">
                 <div class="card-header">
                     输出
                 </div>
@@ -100,7 +94,7 @@
                     <!-- 输出文本区域 -->
                     <div class="mb-3" id="textOutputArea">
                         <label for="outputText" class="form-label">输出文本</label>
-                        <textarea id="outputText" class="form-control" rows="4" placeholder="输出的文本将显示在此处..."
+                        <textarea id="outputText" class="form-control" rows="9" placeholder="输出的文本将显示在此处..."
                                   readonly></textarea>
                     </div>
                     <button class="btn btn-success" id="downloadBtn">下载文件</button>

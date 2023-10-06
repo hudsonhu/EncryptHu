@@ -23,14 +23,14 @@ h2 {
 }
 
 .process-btn {
-    font-size: 50px;
+    font-size: 48px;
     /*color*/
     color: #f8f8f8;
     text-shadow: 0px 0px 30px rgba(0, 0, 0, 0.3);"
 }
 
 .process-btn:hover {
-    font-size: 55px;
+    font-size: 50px;
     color: #eeeeee;
     text-shadow: 0px 0px 30px rgba(0, 0, 0, 0.5);"
 }
@@ -47,4 +47,21 @@ h2 {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
+#actionLabel {
+    width: 100px;
+    transition: background-color 0.3s, color 0.3s;
+}
 
+.btn-check:checked + #actionLabel {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-check:checked + #actionLabel::before {
+    content: "当前：解密模式";
+}
+
+.btn-check:not(:checked) + #actionLabel::before {
+    content: "当前：加密模式";
+    width: fit-content;
+}

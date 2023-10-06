@@ -102,24 +102,100 @@ document.addEventListener("DOMContentLoaded", function() {
         textModeBtn.classList.remove('btn-primary');
     });
 
+    // after text is entered, change the color of the button
+    inputText.addEventListener('input', function() {
+        if (inputText.value) {
+            actionBtn.classList.remove('btn-secondary');
+            actionBtn.classList.add('btn-primary');
+        } else {
+            actionBtn.classList.remove('btn-primary');
+            actionBtn.classList.add('btn-secondary');
+        }
+    });
+
+
+
     let testKey = '133457799BBCDFF1';
+
+    // 加密/解密选择器的引用
+    const actionSwitch = document.getElementById('actionSwitch');
+
+    // 当前的操作状态，true代表加密，false代表解密
+    let isEncryptMode = true; // 默认为加密模式
+
+    // 监听加密/解密选择器的状态改变
+    actionSwitch.addEventListener('change', function() {
+        isEncryptMode = !actionSwitch.checked; // 切换模式
+    });
 
     actionBtn.addEventListener('click', function() {
         if (inputFile.files.length) {
             // TODO: read file
         } else {
-            let textToEncrypt = inputText.value;
-            if (textToEncrypt) {
-                // Convert from UTF-8 to Hex
-                let hexText = utf8ToHex(textToEncrypt);
-                // Pad using PKCS7
-                let paddedHexText = pkcs7Pad(hexText);
-                const encryptedText = desEncrypt(paddedHexText, testKey);
-                outputText.value = encryptedText; // update text box
-                console.log(encryptedText);
+            let text = inputText.value;
+            if (text) {
+                if (isEncryptMode) { // 加密模式
+                    console.log("ENCRYPTING");
+                    let hexText = utf8ToHex(text);
+                    let paddedHexText = pkcs7Pad(hexText);
+                    const encryptedText = desEncrypt(paddedHexText, testKey);
+                    outputText.value = encryptedText;
+                    console.log(encryptedText);
+                } else { // 解密模式
+                    console.log("DECRYPTING");
+                    // 假设你的desDecrypt函数返回解密后的文本
+                    const decryptedHexText = desDecrypt(text, testKey);
+                    // Convert hex back to utf-8
+                    const decryptedText = hexToUtf8(decryptedHexText);
+                    outputText.value = decryptedText;
+                    console.log(decryptedText);
+                }
             } else {
-                console.warn('No text to encrypt.');
+                alert('输入不能为空');
             }
         }
+    });
+
+    // 获取清除按钮
+    const clearTextBtn = document.getElementById('clearTextBtn');
+    const clearFileBtn = document.getElementById('clearFileBtn');
+
+    // 默认禁用清除按钮
+    clearTextBtn.disabled = true;
+    clearFileBtn.disabled = true;
+
+    // 监听inputText的内容变化
+    inputText.addEventListener('input', function() {
+        // 如果inputText有内容，启用清除按钮；否则禁用
+        clearTextBtn.disabled = inputText.value ? false : true;
+
+        // 更新actionBtn的状态
+        if (inputText.value) {
+            actionBtn.classList.remove('btn-secondary');
+            actionBtn.classList.add('btn-primary');
+        } else {
+            actionBtn.classList.remove('btn-primary');
+            actionBtn.classList.add('btn-secondary');
+        }
+    });
+
+    // 清除inputText内容
+    clearTextBtn.addEventListener('click', function() {
+        inputText.value = '';
+        clearTextBtn.disabled = true; // 内容已被清除，所以禁用按钮
+        actionBtn.classList.remove('btn-primary'); // 由于内容被清除，改变actionBtn的状态
+        actionBtn.classList.add('btn-secondary');
+    });
+
+    // 监听文件上传控件的内容变化
+    inputFile.addEventListener('change', function() {
+        // 如果有选择的文件，启用清除按钮；否则禁用
+        clearFileBtn.disabled = inputFile.files.length ? false : true;
+    });
+
+    // 清除文件上传控件的内容
+    clearFileBtn.addEventListener('click', function() {
+        inputFile.value = ''; // 清除选中的文件
+        clearFileBtn.disabled = true; // 内容已被清除，所以禁用按钮
     });
 });
