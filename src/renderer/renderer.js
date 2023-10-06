@@ -1,5 +1,5 @@
-const { desEncrypt } = require('./des.js');
-const { pkcs7Pad } = require("./des");
+const { desEncrypt, desDecrypt, pkcs7Pad, pkcs7Unpad } = require('./des.js');
+const crypto = require("crypto");
 
 function utf8ToHex(str) {
     let utf8Arr = [];
@@ -63,12 +63,20 @@ function hexToUtf8(hex) {
     return str;
 }
 
+
+function generateDESKeyFromPassword(password) {
+    const crypto = require('crypto');
+    const hash = crypto.createHash('sha256').update(password).digest('hex');
+    return hash.substr(0, 16); // 获取前16个字符
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     const actionBtn = document.getElementById('actionBtn');
     const inputFile = document.getElementById('fileUpload');
     const inputText = document.getElementById('inputText');
     const outputText = document.getElementById('outputText');
-    // 获取元素
+    const desKeyInput = document.getElementById('desKey');
+    const useHexKeyCheckbox = document.getElementById('useHexKey');
     // 获取元素
     const textModeBtn = document.getElementById('textModeBtn');
     const fileModeBtn = document.getElementById('fileModeBtn');
@@ -90,6 +98,10 @@ document.addEventListener("DOMContentLoaded", function() {
         textModeBtn.classList.remove('btn-secondary');
         fileModeBtn.classList.add('btn-secondary');
         fileModeBtn.classList.remove('btn-primary');
+
+        // 清空已上传的文件
+        inputFile.value = '';
+        clearFileBtn.disabled = true; // 内容已被清除，所以禁用按钮
     });
 
 // 当点击"文件"按钮
@@ -100,6 +112,9 @@ document.addEventListener("DOMContentLoaded", function() {
         fileModeBtn.classList.remove('btn-secondary');
         textModeBtn.classList.add('btn-secondary');
         textModeBtn.classList.remove('btn-primary');
+
+        // 清空已输入的文本
+        inputText.value = '';
     });
 
     // after text is entered, change the color of the button
@@ -112,10 +127,6 @@ document.addEventListener("DOMContentLoaded", function() {
             actionBtn.classList.add('btn-secondary');
         }
     });
-
-
-
-    let testKey = '133457799BBCDFF1';
 
     // 加密/解密选择器的引用
     const actionSwitch = document.getElementById('actionSwitch');
@@ -130,22 +141,81 @@ document.addEventListener("DOMContentLoaded", function() {
 
     actionBtn.addEventListener('click', function() {
         if (inputFile.files.length) {
-            // TODO: read file
+            const file = inputFile.files[0];
+            if (file.size > 10 * 1024 * 1024) { // 10MB
+                alert('文件太大，不能超过10MB!');
+                return;
+            }
+
+            if (!file.type.startsWith('text')) {
+                alert('只支持文本文件！');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const fileContent = e.target.result;
+                let actualDESKey;
+                if (useHexKeyCheckbox.checked) {
+                    if (desKeyInput.value.length !== 16) {
+                        alert("请确保密钥为16个字符的Hex格式！");
+                        return;
+                    }
+                    actualDESKey = desKeyInput.value;
+                } else {
+                    if (!desKeyInput.value) {
+                        alert("请确保密钥不为空！");
+                        return;
+                    }
+                    actualDESKey = generateDESKeyFromPassword(desKeyInput.value);
+                }
+                if (isEncryptMode) {
+                    console.log("ENCRYPTING FILE CONTENT");
+                    let hexText = utf8ToHex(fileContent);
+                    let paddedHexText = pkcs7Pad(hexText);
+                    const encryptedText = desEncrypt(paddedHexText, actualDESKey);
+                    outputText.value = encryptedText;
+                    console.log(encryptedText);
+                } else {
+                    console.log("DECRYPTING FILE CONTENT");
+                    const decryptedHexText = desDecrypt(fileContent, actualDESKey);
+                    const decryptedText = hexToUtf8(decryptedHexText);
+                    outputText.value = decryptedText;
+                    console.log(decryptedText);
+                }
+            };
+            reader.onerror = function() {
+                alert('文件读取出错！');
+            };
+            reader.readAsText(file);
         } else {
             let text = inputText.value;
             if (text) {
-                if (isEncryptMode) { // 加密模式
+                let actualDESKey;
+                if (useHexKeyCheckbox.checked) {
+                    if (desKeyInput.value.length !== 16) {
+                        alert("请确保密钥为16个字符的Hex格式！");
+                        return;
+                    }
+                    actualDESKey = desKeyInput.value;
+                } else {
+                    // 检查密钥是否为空
+                    if (!desKeyInput.value) {
+                        alert("请确保密钥不为空！");
+                        return;
+                    }
+                    actualDESKey = generateDESKeyFromPassword(desKeyInput.value);
+                }
+                if (isEncryptMode) {
                     console.log("ENCRYPTING");
                     let hexText = utf8ToHex(text);
                     let paddedHexText = pkcs7Pad(hexText);
-                    const encryptedText = desEncrypt(paddedHexText, testKey);
+                    const encryptedText = desEncrypt(paddedHexText, actualDESKey);
                     outputText.value = encryptedText;
                     console.log(encryptedText);
-                } else { // 解密模式
+                } else {
                     console.log("DECRYPTING");
-                    // 假设你的desDecrypt函数返回解密后的文本
-                    const decryptedHexText = desDecrypt(text, testKey);
-                    // Convert hex back to utf-8
+                    const decryptedHexText = desDecrypt(text, actualDESKey);
                     const decryptedText = hexToUtf8(decryptedHexText);
                     outputText.value = decryptedText;
                     console.log(decryptedText);
@@ -167,7 +237,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // 监听inputText的内容变化
     inputText.addEventListener('input', function() {
         // 如果inputText有内容，启用清除按钮；否则禁用
-        clearTextBtn.disabled = inputText.value ? false : true;
+        clearTextBtn.disabled = !inputText.value;
 
         // 更新actionBtn的状态
         if (inputText.value) {

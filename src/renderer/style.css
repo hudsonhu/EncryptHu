@@ -50,6 +50,7 @@ h2 {
 #actionLabel {
     width: 100px;
     transition: background-color 0.3s, color 0.3s;
+    font-weight: bold;
 }
 
 .btn-check:checked + #actionLabel {

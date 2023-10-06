@@ -221,14 +221,9 @@ function pkcs7Unpad(data) {
     return data.slice(0, -lastByte * 2);
 }
 
-
-// TODO: remove
-console.log(desEncrypt('0BC587C8AD960AD2', '0BC587C8AD960AD2'));
-// it should be 85E813540F0AB405
-
-
 module.exports = {
     desEncrypt,
+    desDecrypt,
     pkcs7Pad,
     pkcs7Unpad
 };
