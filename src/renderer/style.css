@@ -1,7 +1,7 @@
 html, body {
     height: 100%;
     width: 100%;
-    overflow: hidden; /* 确保html和body不滚动 */
+    overflow: hidden;
 }
 
 body {
@@ -59,10 +59,10 @@ h2 {
 }
 
 .btn-check:checked + #actionLabel::before {
-    content: "当前：解密模式";
+    content: "Current: Decrypt Mode";
 }
 
 .btn-check:not(:checked) + #actionLabel::before {
-    content: "当前：加密模式";
+    content: "Current: Encrypt Mode";
     width: fit-content;
 }

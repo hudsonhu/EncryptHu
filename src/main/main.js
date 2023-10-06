@@ -9,11 +9,12 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-        }
+        },
+        title: 'EncryptHu'
     });
 
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html')).then(r => console.log(r));
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 
     // handle window close
     mainWindow.on('closed', function () {

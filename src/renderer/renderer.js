@@ -63,11 +63,26 @@ function hexToUtf8(hex) {
     return str;
 }
 
+function downloadAsFile(text) {
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style.display = "none";
+    a.href = url;
+    a.download = "result.txt";
+    a.click();
+
+    // release the object URL
+    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
+
 
 function generateDESKeyFromPassword(password) {
     const crypto = require('crypto');
     const hash = crypto.createHash('sha256').update(password).digest('hex');
-    return hash.substr(0, 16); // 获取前16个字符
+    return hash.substr(0, 16); // get first 16 bytes
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -77,20 +92,27 @@ document.addEventListener("DOMContentLoaded", function() {
     const outputText = document.getElementById('outputText');
     const desKeyInput = document.getElementById('desKey');
     const useHexKeyCheckbox = document.getElementById('useHexKey');
-    // 获取元素
     const textModeBtn = document.getElementById('textModeBtn');
     const fileModeBtn = document.getElementById('fileModeBtn');
     const fileCard = document.getElementById('fileCard');
     const textCard = document.getElementById('textCard');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const clearTextBtn = document.getElementById('clearTextBtn');
+    const clearFileBtn = document.getElementById('clearFileBtn');
 
-// 默认状态
+    // default state
+    clearTextBtn.disabled = true;
+    clearFileBtn.disabled = true;
+    downloadBtn.disabled = true;
+
     fileCard.style.display = 'block';
     textCard.style.display = 'none';
     fileModeBtn.classList.add('btn-primary');
     fileModeBtn.classList.remove('btn-secondary');
     textModeBtn.classList.add('btn-secondary');
     textModeBtn.classList.remove('btn-primary');
-// 当点击"文本"按钮
+
+    // when user clicks the text mode button
     textModeBtn.addEventListener('click', function() {
         fileCard.style.display = 'none';
         textCard.style.display = 'block';
@@ -99,12 +121,12 @@ document.addEventListener("DOMContentLoaded", function() {
         fileModeBtn.classList.add('btn-secondary');
         fileModeBtn.classList.remove('btn-primary');
 
-        // 清空已上传的文件
+        // clear the file input
         inputFile.value = '';
-        clearFileBtn.disabled = true; // 内容已被清除，所以禁用按钮
+        clearFileBtn.disabled = true;
     });
 
-// 当点击"文件"按钮
+    // when user clicks the file mode button
     fileModeBtn.addEventListener('click', function() {
         fileCard.style.display = 'block';
         textCard.style.display = 'none';
@@ -113,7 +135,6 @@ document.addEventListener("DOMContentLoaded", function() {
         textModeBtn.classList.add('btn-secondary');
         textModeBtn.classList.remove('btn-primary');
 
-        // 清空已输入的文本
         inputText.value = '';
     });
 
@@ -128,43 +149,32 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // 加密/解密选择器的引用
+    // the switch to toggle between encrypt and decrypt
     const actionSwitch = document.getElementById('actionSwitch');
+    let isEncryptMode = true; // default is encrypt mode
 
-    // 当前的操作状态，true代表加密，false代表解密
-    let isEncryptMode = true; // 默认为加密模式
-
-    // 监听加密/解密选择器的状态改变
+    // listen to the switch change event
     actionSwitch.addEventListener('change', function() {
-        isEncryptMode = !actionSwitch.checked; // 切换模式
+        isEncryptMode = !actionSwitch.checked;
     });
 
+    // when user clicks the action button, the -> button
     actionBtn.addEventListener('click', function() {
         if (inputFile.files.length) {
             const file = inputFile.files[0];
-            if (file.size > 10 * 1024 * 1024) { // 10MB
-                alert('文件太大，不能超过10MB!');
-                return;
-            }
-
-            if (!file.type.startsWith('text')) {
-                alert('只支持文本文件！');
-                return;
-            }
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 const fileContent = e.target.result;
                 let actualDESKey;
                 if (useHexKeyCheckbox.checked) {
                     if (desKeyInput.value.length !== 16) {
-                        alert("请确保密钥为16个字符的Hex格式！");
+                        alert("Please make sure the key is 16 bytes long!");
                         return;
                     }
                     actualDESKey = desKeyInput.value;
                 } else {
                     if (!desKeyInput.value) {
-                        alert("请确保密钥不为空！");
+                        alert("Please enter a password!");
                         return;
                     }
                     actualDESKey = generateDESKeyFromPassword(desKeyInput.value);
@@ -185,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             };
             reader.onerror = function() {
-                alert('文件读取出错！');
+                alert('Failed to read file!');
             };
             reader.readAsText(file);
         } else {
@@ -194,14 +204,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 let actualDESKey;
                 if (useHexKeyCheckbox.checked) {
                     if (desKeyInput.value.length !== 16) {
-                        alert("请确保密钥为16个字符的Hex格式！");
+                        alert("Please make sure the key is 16 bytes long!");
                         return;
                     }
                     actualDESKey = desKeyInput.value;
                 } else {
-                    // 检查密钥是否为空
                     if (!desKeyInput.value) {
-                        alert("请确保密钥不为空！");
+                        alert("Please enter a password!");
                         return;
                     }
                     actualDESKey = generateDESKeyFromPassword(desKeyInput.value);
@@ -221,25 +230,16 @@ document.addEventListener("DOMContentLoaded", function() {
                     console.log(decryptedText);
                 }
             } else {
-                alert('输入不能为空');
+                alert('Input text cannot be empty!');
             }
         }
+        downloadBtn.disabled = !outputText.value;
     });
 
-    // 获取清除按钮
-    const clearTextBtn = document.getElementById('clearTextBtn');
-    const clearFileBtn = document.getElementById('clearFileBtn');
 
-    // 默认禁用清除按钮
-    clearTextBtn.disabled = true;
-    clearFileBtn.disabled = true;
-
-    // 监听inputText的内容变化
+    // the input text area
     inputText.addEventListener('input', function() {
-        // 如果inputText有内容，启用清除按钮；否则禁用
         clearTextBtn.disabled = !inputText.value;
-
-        // 更新actionBtn的状态
         if (inputText.value) {
             actionBtn.classList.remove('btn-secondary');
             actionBtn.classList.add('btn-primary');
@@ -249,23 +249,28 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // 清除inputText内容
+    // the clear text button
     clearTextBtn.addEventListener('click', function() {
         inputText.value = '';
-        clearTextBtn.disabled = true; // 内容已被清除，所以禁用按钮
-        actionBtn.classList.remove('btn-primary'); // 由于内容被清除，改变actionBtn的状态
+        clearTextBtn.disabled = true;
+        actionBtn.classList.remove('btn-primary');
         actionBtn.classList.add('btn-secondary');
     });
 
-    // 监听文件上传控件的内容变化
+    // check if file is selected
     inputFile.addEventListener('change', function() {
-        // 如果有选择的文件，启用清除按钮；否则禁用
-        clearFileBtn.disabled = inputFile.files.length ? false : true;
+        // enable the clear file button if a file is selected
+        clearFileBtn.disabled = !inputFile.files.length;
     });
 
-    // 清除文件上传控件的内容
+    // the clear file button
     clearFileBtn.addEventListener('click', function() {
-        inputFile.value = ''; // 清除选中的文件
-        clearFileBtn.disabled = true; // 内容已被清除，所以禁用按钮
+        inputFile.value = '';
+        clearFileBtn.disabled = true;
+    });
+
+    // the download button
+    downloadBtn.addEventListener('click', function() {
+        downloadAsFile(outputText.value);
     });
 });

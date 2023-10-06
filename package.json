@@ -2,9 +2,9 @@
   "name": "encrypthu",
   "version": "1.0.0",
   "description": "An web app which encrypts all.",
-  "main": "index.js",
+  "main": "src/main/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron ."
   },
   "author": "hudsonhu",
   "license": "ISC",
