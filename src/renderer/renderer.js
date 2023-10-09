@@ -1,6 +1,4 @@
-const { desEncrypt, desDecrypt, pkcs7Pad, pkcs7Unpad } = require('./des.js');
-const crypto = require("crypto");
-
+const { desEncrypt, desDecrypt, pkcs5Pad, pkcs5Unpad } = require('./des.js');
 function utf8ToHex(str) {
     let utf8Arr = [];
     for (let i = 0; i < str.length; i++) {
@@ -80,8 +78,7 @@ function downloadAsFile(text) {
 
 
 function generateDESKeyFromPassword(password) {
-    const crypto = require('crypto');
-    const hash = crypto.createHash('sha256').update(password).digest('hex');
+    const hash = require("crypto").createHash('sha256').update(password).digest('hex');
     return hash.substr(0, 16); // get first 16 bytes
 }
 
@@ -149,6 +146,14 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    useHexKeyCheckbox.addEventListener('change', function() {
+        if (useHexKeyCheckbox.checked) {
+            desKeyInput.placeholder = 'Enter 16 bytes DES key...(Hex)';
+        } else {
+            desKeyInput.placeholder = 'Enter DES key...(UTF-8)';
+        }
+    });
+
     // the switch to toggle between encrypt and decrypt
     const actionSwitch = document.getElementById('actionSwitch');
     let isEncryptMode = true; // default is encrypt mode
@@ -164,7 +169,6 @@ document.addEventListener("DOMContentLoaded", function() {
             const file = inputFile.files[0];
             const reader = new FileReader();
             reader.onload = function(e) {
-                const fileContent = e.target.result;
                 let actualDESKey;
                 if (useHexKeyCheckbox.checked) {
                     if (desKeyInput.value.length !== 16) {
@@ -180,18 +184,22 @@ document.addEventListener("DOMContentLoaded", function() {
                     actualDESKey = generateDESKeyFromPassword(desKeyInput.value);
                 }
                 if (isEncryptMode) {
-                    console.log("ENCRYPTING FILE CONTENT");
-                    let hexText = utf8ToHex(fileContent);
-                    let paddedHexText = pkcs7Pad(hexText);
+                    console.log("ENCRYPTING");
+                    let hexText = utf8ToHex(text);
+                    let paddedHexText = pkcs5Pad(hexText);
                     const encryptedText = desEncrypt(paddedHexText, actualDESKey);
                     outputText.value = encryptedText;
-                    console.log(encryptedText);
                 } else {
-                    console.log("DECRYPTING FILE CONTENT");
-                    const decryptedHexText = desDecrypt(fileContent, actualDESKey);
-                    const decryptedText = hexToUtf8(decryptedHexText);
+                    console.log("DECRYPTING");
+                    const decryptedHexText = desDecrypt(text, actualDESKey);
+                    let decryptedText;
+                    try {
+                        decryptedText = pkcs5Unpad(decryptedHexText);
+                    } catch (e) {
+                        alert("Invalid PKCS5 padding, decrypted raw hex text: " + decryptedHexText);
+                    }
+                    decryptedText = hexToUtf8(decryptedText);
                     outputText.value = decryptedText;
-                    console.log(decryptedText);
                 }
             };
             reader.onerror = function() {
@@ -218,16 +226,21 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (isEncryptMode) {
                     console.log("ENCRYPTING");
                     let hexText = utf8ToHex(text);
-                    let paddedHexText = pkcs7Pad(hexText);
+                    let paddedHexText = pkcs5Pad(hexText);
                     const encryptedText = desEncrypt(paddedHexText, actualDESKey);
                     outputText.value = encryptedText;
                     console.log(encryptedText);
                 } else {
                     console.log("DECRYPTING");
                     const decryptedHexText = desDecrypt(text, actualDESKey);
-                    const decryptedText = hexToUtf8(decryptedHexText);
+                    let decryptedText;
+                    try {
+                        decryptedText = pkcs5Unpad(decryptedHexText);
+                    } catch (e) {
+                        alert("Invalid PKCS5 padding detected, decrypted raw hex text: " + decryptedHexText);
+                    }
+                    decryptedText = hexToUtf8(decryptedText);
                     outputText.value = decryptedText;
-                    console.log(decryptedText);
                 }
             } else {
                 alert('Input text cannot be empty!');

@@ -38,15 +38,16 @@ function iterate_16(plaintext, keys, encrypt = true) {
     let L = plaintext.slice(0, 32);
     let R = plaintext.slice(32, 64);
 
+    let newL, newR;
     if (!encrypt) {
-        keys = keys.reverse();
+        keys = [...keys].reverse();
     }
 
     for (let i = 0; i < 16; i++) {
-        console.log(i, R, keys[i])
-        let newR = xor(L, f(R, keys[i]));
-        L = R;
+        newR = xor(L, f(R, keys[i]));
+        newL = R;
         R = newR;
+        L = newL;
     }
     return R.concat(L);
 }
@@ -136,6 +137,8 @@ function desEncryptBlock(plaintext, subkeys) {
  * @returns {*[]}
  */
 function desEncrypt(plaintextHex, keyHex) {
+    validateKey(keyHex);
+    validateData(plaintextHex)
     // Convert hex to binary
     const plaintext = hexToBinary(plaintextHex);
     console.log(plaintext)
@@ -149,6 +152,7 @@ function desEncrypt(plaintextHex, keyHex) {
     }
 
     // process each block
+    let block;
     for (let i = 0; i < blocks.length; i++) {
         block = desEncryptBlock(blocks[i], subkeys);
         block = block.join('');
@@ -171,6 +175,7 @@ function desDecryptBlock(ciphertext, subkeys) {
 }
 
 function desDecrypt(ciphertextHex, keyHex) {
+    validateKey(keyHex);
     // Convert hex to binary
     const ciphertext = hexToBinary(ciphertextHex);
     const key = hexToBinary(keyHex).split('').map(bit => parseInt(bit, 10));  // Convert string bits to numbers
@@ -183,6 +188,7 @@ function desDecrypt(ciphertextHex, keyHex) {
     }
 
     // process each block
+    let block;
     for (let i = 0; i < blocks.length; i++) {
         block = desDecryptBlock(blocks[i], subkeys);
         block = block.join('');
@@ -209,21 +215,47 @@ function binaryToHex(binary) {
     return binary.match(/.{1,4}/g).map((bin) => parseInt(bin, 2).toString(16)).join('');
 }
 
-function pkcs7Pad(data) {
+function validateKey(keyHex) {
+    if (keyHex.length !== 16) { // 16 hex digits = 64 bits
+        throw new Error('Invalid key length. Key must be a 64-bit hexadecimal string.');
+    }
+}
+
+function validateData(dataHex) {
+    if (dataHex.length % 16 !== 0) { // 16 hex digits = 64 bits
+        throw new Error('Invalid data length. Data must be a multiple of 64 bits.');
+    }
+}
+
+function pkcs5Pad(data) {
     const padLength = 8 - (data.length / 2) % 8;
+    console.log("data to pad: ", data);
+    console.log("padLength: ", padLength);
     const padByte = padLength.toString(16).padStart(2, '0');
+    console.log("padByte: ", padByte);
     const padding = padByte.repeat(padLength);
+    console.log("padded: ", data + padding);
     return data + padding;
 }
 
-function pkcs7Unpad(data) {
+function validatePKCS5Padding(data) {
+    const lastByte = parseInt(data.slice(-2), 16);
+    const expectedPadding = lastByte.toString(16).padStart(2, '0').repeat(lastByte);
+    if (data.slice(-lastByte * 2) !== expectedPadding) {
+        throw new Error('Invalid PKCS5 padding.');
+    }
+}
+
+function pkcs5Unpad(data) {
+    validatePKCS5Padding(data)
     const lastByte = parseInt(data.slice(-2), 16);
     return data.slice(0, -lastByte * 2);
 }
 
+
 module.exports = {
     desEncrypt,
     desDecrypt,
-    pkcs7Pad,
-    pkcs7Unpad
+    pkcs5Pad,
+    pkcs5Unpad
 };
