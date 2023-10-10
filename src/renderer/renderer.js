@@ -161,6 +161,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // listen to the switch change event
     actionSwitch.addEventListener('change', function() {
         isEncryptMode = !actionSwitch.checked;
+        inputText.placeholder = isEncryptMode ? 'Enter any text to be encrypted...(UTF-8)' : 'Enter text to be decrypted...(Hex)';
     });
 
     // when user clicks the action button, the -> button
@@ -185,13 +186,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
                 if (isEncryptMode) {
                     console.log("ENCRYPTING");
-                    let hexText = utf8ToHex(text);
+                    let hexText = utf8ToHex(e.target.result);
                     let paddedHexText = pkcs5Pad(hexText);
                     const encryptedText = desEncrypt(paddedHexText, actualDESKey);
                     outputText.value = encryptedText;
                 } else {
                     console.log("DECRYPTING");
-                    const decryptedHexText = desDecrypt(text, actualDESKey);
+                    const decryptedHexText = desDecrypt(e.target.result, actualDESKey);
                     let decryptedText;
                     try {
                         decryptedText = pkcs5Unpad(decryptedHexText);
