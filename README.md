@@ -1,46 +1,53 @@
 # EncryptHu
 
-**EncryptHu** is a web application designed to provide seamless encryption and decryption functionalities, built with Electron and Bootstrap.
+EncryptHu is an elegant desktop application for DES encryption and decryption, providing a user-friendly interface crafted with Electron and Bootstrap for a seamless user experience across different platforms.
+## Key Features
 
-## Features
+- **Intuitive GUI**: Simplifies the encryption/decryption process with a clear and organized interface.
+- **Dual Input Modes**: Supports text and file inputs for versatile encryption and decryption needs.
+- **DES Encryption**: Utilizes the DES algorithm with the option for standard hex keys.
+- **Output Display**: Presents the encrypted/decrypted result in a dedicated output section.
+- **Cross-Platform**: Runs on Windows, macOS, Linux, and any other platform supported by Electron.
 
-- User-friendly interface.
-- Support for both text and file input.
-- DES encryption with options for standard hex keys.
-- Integrated with Bootstrap for a modern look and feel.
+## Quick Start
 
-## Installation
+To begin using EncryptHu, follow these steps:
 
-1. **Clone the Repository**
-```bash
-git clone https://github.com/hudsonhu/EncryptHu.git
-```
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/hudsonhu/EncryptHu.git
+   ```
+2. **Navigate to the directory**:
+   ```bash
+   cd EncryptHu
+   ```
+3. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+4. **Launch the application**:
+   ```bash
+   npm run start
+   ```
 
-2. **Navigate to the Project Directory**
-```bash
-cd EncryptHu
-```
+## How to Use
 
-3. **Install Dependencies**
-```bash
-npm install
-```
+The application offers a straightforward workflow:
 
-4. **Run the Application**
-```bash
-npm run start
-```
+1. Toggle between encryption or decryption at the top of the application.
+2. Input your DES key and choose if you're using a standard hex key.
+3. Select your input type: text or file.
+4. Provide the text or upload the file you wish to encrypt/decrypt.
+5. Initiate the process and view your results in the output section.
 
-## Usage
+For a detailed guide on EncryptHu's capabilities and design choices, please refer to our [Report](report.md).
 
-1. **Select Encryption or Decryption Mode**: Toggle the switch at the top to select between encryption and decryption.
+## UI Showcase
 
-2. **Enter DES Key**: Use the input box to provide the DES key for encryption or decryption. Optionally, select the "Use Standard Hex Key" checkbox if you're using a standard hex format key.
+![EncryptHu Interface](pics/screenshot.png)
 
-3. **Choose Input Type**: Use the "Enter Text" or "Upload File" buttons to select the input type.
+The image above showcases the organized layout and modern design of EncryptHu, highlighting the ease with which users can access all functionality from a single window.
 
-4. **Provide Input**: Either type in the text you want to encrypt/decrypt or upload the file.
+## Further Reading
 
-5. **Click the Arrow Button**: This will perform the encryption or decryption based on your selections.
-
-6. **View the Result**: The output will be displayed in the "Result Output" section. You can also download the result as a file.
+For an in-depth exploration of EncryptHu's design, architecture, and usage, please consult the accompanying [report.md](report.md) document. The report provides background on DES, detailed explanations of features, and insights into the application's technical implementation.
